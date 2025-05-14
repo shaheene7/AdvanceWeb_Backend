@@ -7,7 +7,7 @@ const projectSchema = new Schema({
   category: String,
   status: {
     type: String,
-    enum: ["Pending", "In Progress", "Completed", "On Hold", "Cancelld"],
+    enum: ["Pending", "In Progress", "Completed", "On Hold", "Cancelled"],
     default: "Pending",
   },
   startDate: Date,

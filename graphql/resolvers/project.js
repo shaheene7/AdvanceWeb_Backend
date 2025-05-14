@@ -4,14 +4,51 @@ const { AuthenticationError } = require("apollo-server-express");
 
 module.exports = {
   Query: {
-    projects: async () => {
-      return await Project.find().populate("members");
+    projects: async (_, { status, search }) => {
+      let filter = {};
+
+      if (status && status !== "all") {
+        filter.status = status;
+      }
+
+      if (search) {
+        filter.$or = [
+          { name: { $regex: search, $options: "i" } },
+          { description: { $regex: search, $options: "i" } },
+        ];
+      }
+
+      const projects = await Project.find(filter)
+        .populate("members")
+        .populate("createdBy");
+
+      return projects.map((project) => ({
+        ...project.toObject(),
+        id: project._id.toString(),
+        startDate: new Date(project.startDate).toISOString().split("T")[0],
+        endDate: new Date(project.endDate).toISOString().split("T")[0],
+        members: project.members.map((member) => ({
+          ...member.toObject(),
+          id: member._id.toString(),
+        })),
+        createdBy: project.createdBy
+          ? {
+              ...project.createdBy.toObject(),
+              id: project.createdBy._id.toString(),
+            }
+          : null,
+      }));
     },
+
     project: async (_, { id }) => {
-      return await Project.findById(id).populate("members");
+      return await Project.findById(id)
+        .populate("members")
+        .populate("createdBy");
     },
     userProjects: async (_, { userId }) => {
-      return await Project.find({ members: userId }).populate("members");
+      return await Project.find({ members: userId })
+        .populate("members")
+        .populate("createdBy");
     },
   },
 

@@ -6,26 +6,61 @@ const { AuthenticationError } = require("apollo-server-express");
 module.exports = {
   Query: {
     tasks: async () => {
-      return await Task.find()
-        .populate("assignedTo", "email")
-        .populate("assignedToProject");
+      const tasks = await Task.find()
+        .populate({ path: "assignedTo", select: "id email" })
+        .exec();
+
+      return tasks.map((task) => {
+        if (task.assignedTo) {
+          return task;
+        }
+
+        task.assignedTo = { id: null, email: null };
+        return task;
+      });
     },
     task: async (_, { id }) => {
-      return await Task.findById(id)
-        .populate("assignedTo", "email")
+      const task = await Task.findById(id)
+        .populate("assignedTo", "id email")
         .populate("assignedToProject");
-    },
-    userTasks: async (_, { userId }) => {
-      return await Task.find({ assignedTo: userId })
-        .populate("assignedTo", "email")
-        .populate("assignedToProject");
+
+      return task
+        ? {
+            ...task.toObject(),
+            id: task._id.toString(),
+            dueDate: task.dueDate
+              ? new Date(task.dueDate).toISOString().split("T")[0]
+              : null,
+          }
+        : null;
     },
 
-    tasksByProject: async (_, { projectId }) => {
-      return await Task.find({ assignedToProject: projectId })
-        .populate({ path: "assignedTo", select: "email" })
-        .populate({ path: "assignedToProject" });
+    userTasks: async (_, { userId }) => {
+      const tasks = await Task.find({ assignedTo: userId })
+        .populate("assignedTo", "email")
+        .populate("assignedToProject");
+
+      return tasks.map((task) => ({
+        ...task.toObject(),
+        id: task._id.toString(),
+        dueDate: task.dueDate
+          ? new Date(task.dueDate).toISOString().split("T")[0]
+          : null,
+      }));
     },
+  },
+  tasksByProject: async (_, { projectId }) => {
+    const tasks = await Task.find({ assignedToProject: projectId })
+      .populate({ path: "assignedTo", select: "email" })
+      .populate({ path: "assignedToProject" });
+
+    return tasks.map((task) => ({
+      ...task.toObject(),
+      id: task._id.toString(),
+      dueDate: task.dueDate
+        ? new Date(task.dueDate).toISOString().split("T")[0]
+        : null,
+    }));
   },
 
   Mutation: {

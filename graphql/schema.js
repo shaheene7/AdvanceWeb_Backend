@@ -9,15 +9,16 @@ module.exports = buildSchema(`
     createdAt: String!
   }
 
- type Task {
+type Task {
   id: ID!
   name: String!
   description: String
   assignedTo: User
   assignedToProject: Project
   status: String
-   dueDate: String
+  dueDate: String
 }
+
 
 
   type Project {
@@ -29,7 +30,7 @@ module.exports = buildSchema(`
     category:String!
     startDate: String!
     endDate: String
-    createdAt: String!
+    createdBy: User!
   }
 
   type AuthPayload {
@@ -69,7 +70,7 @@ input ProjectInput {
     tasksByProject(projectId: ID!): [Task]
 
     # Projects
-    projects: [Project!]!
+    projects(status: String, search: String): [Project!]!
     project(id: ID!): Project
     userProjects(userId: ID!): [Project!]!
   }
