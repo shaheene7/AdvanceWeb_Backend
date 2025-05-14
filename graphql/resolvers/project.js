@@ -23,22 +23,39 @@ module.exports = {
         .populate("members")
         .populate("createdBy");
 
-      return projects.map((project) => ({
-        ...project.toObject(),
-        id: project._id.toString(),
-        startDate: new Date(project.startDate).toISOString().split("T")[0],
-        endDate: new Date(project.endDate).toISOString().split("T")[0],
-        members: project.members.map((member) => ({
-          ...member.toObject(),
-          id: member._id.toString(),
-        })),
-        createdBy: project.createdBy
-          ? {
-              ...project.createdBy.toObject(),
-              id: project.createdBy._id.toString(),
-            }
-          : null,
-      }));
+      const results = await Promise.all(
+        projects.map(async (project) => {
+          const tasks = await Task.find({ assignedToProject: project._id });
+          const totalTasks = tasks.length;
+          const completedTasks = tasks.filter(
+            (task) => task.status === "Completed"
+          ).length;
+          const completionPercentage =
+            totalTasks > 0
+              ? Math.round((completedTasks / totalTasks) * 100)
+              : 0;
+
+          return {
+            ...project.toObject(),
+            id: project._id.toString(),
+            startDate: new Date(project.startDate).toISOString().split("T")[0],
+            endDate: new Date(project.endDate).toISOString().split("T")[0],
+            members: project.members.map((member) => ({
+              ...member.toObject(),
+              id: member._id.toString(),
+            })),
+            createdBy: project.createdBy
+              ? {
+                  ...project.createdBy.toObject(),
+                  id: project.createdBy._id.toString(),
+                }
+              : null,
+            completionPercentage,
+          };
+        })
+      );
+
+      return results;
     },
 
     getProjectCompletion: async (_, { projectId }, { user }) => {

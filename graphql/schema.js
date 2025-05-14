@@ -22,7 +22,7 @@ type Task {
 type ProjectCompletion {
   percentage: Int!
 }
-  
+
 type Message {
   id: ID!
   sender: User!
@@ -39,6 +39,7 @@ type Message {
     description: String
     status: String!
     members: [User!]!
+    completionPercentage: Int!
     category:String!
     startDate: String!
     endDate: String
