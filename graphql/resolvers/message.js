@@ -6,10 +6,11 @@ module.exports = {
     getMessagesBetween: async (_, { senderId, recipientId }, { user }) => {
       if (!user) throw new Error("Unauthorized");
 
-      // Only allow admins or students to access messages
+      // Validate users exist
       const sender = await User.findById(senderId);
       const recipient = await User.findById(recipientId);
 
+      // Only allow admin ↔ student communication
       if (
         !sender ||
         !recipient ||
@@ -29,8 +30,21 @@ module.exports = {
         .populate("recipient");
 
       return messages.map((msg) => ({
-        ...msg.toObject(),
         id: msg._id.toString(),
+        content: msg.content,
+        createdAt: msg.createdAt,
+        sender: {
+          id: msg.sender._id.toString(),
+          name: msg.sender.name,
+          email: msg.sender.email,
+          role: msg.sender.role,
+        },
+        recipient: {
+          id: msg.recipient._id.toString(),
+          name: msg.recipient.name,
+          email: msg.recipient.email,
+          role: msg.recipient.role,
+        },
       }));
     },
   },
@@ -54,13 +68,15 @@ module.exports = {
         throw new Error("Only admin-student chat is allowed.");
       }
 
-      const message = new Message({ sender, recipient, content });
-      await message.save();
+      const message = await Message.create({
+        sender: senderId,
+        recipient: recipientId,
+        content,
+      });
 
-      return {
-        ...message.toObject(),
-        id: message._id.toString(),
-      };
+      const populatedMessage = await message.populate("sender recipient");
+
+      return populatedMessage;
     },
   },
 };

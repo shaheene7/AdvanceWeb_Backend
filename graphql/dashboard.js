@@ -12,7 +12,7 @@ module.exports = {
           Project.countDocuments(),
           Task.countDocuments(),
           User.countDocuments({ role: "student" }),
-          Project.countDocuments({ status: "finished" }),
+          Project.countDocuments({ status: "Completed" }),
         ]);
 
       return [
