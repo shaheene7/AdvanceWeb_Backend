@@ -19,6 +19,14 @@ type Task {
   dueDate: String
 }
 
+type Message {
+  id: ID!
+  sender: User!
+  recipient: User!
+  content: String!
+  createdAt: String!
+}
+
 
 
   type Project {
@@ -80,6 +88,10 @@ input ProjectInput {
     userProjects(userId: ID!): [Project!]!
   }
 
+  extend type Query {
+  getMessagesBetween(senderId: ID!, recipientId: ID!): [Message!]!
+}
+
   type Mutation {
     # Auth
     registerStudent(email: String!, password: String!, universityId: String!):MessageResponse!
@@ -96,4 +108,7 @@ input ProjectInput {
     addProjectMember(projectId: ID!, userId: ID!): Project!
     removeProjectMember(projectId: ID!, userId: ID!): Project!
   }
+  extend type Mutation {
+  sendMessage(senderId: ID!, recipientId: ID!, content: String!): Message!
+}
 `);
