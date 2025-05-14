@@ -38,6 +38,11 @@ type Task {
     user: User!
   }
 
+  type MessageResponse {
+     message: String!
+     status: String!
+    }
+
 input TaskInput {
   name: String!
   description: String
@@ -77,8 +82,8 @@ input ProjectInput {
 
   type Mutation {
     # Auth
-    registerStudent(email: String!, password: String!, universityId: String!): AuthPayload!
-    registerAdmin(email: String!, password: String!): AuthPayload!
+    registerStudent(email: String!, password: String!, universityId: String!):MessageResponse!
+    registerAdmin(email: String!, password: String!):MessageResponse!
     login(email: String!, password: String!): AuthPayload!
 
     # Tasks
