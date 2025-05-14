@@ -51,6 +51,11 @@ type Message {
      status: String!
     }
 
+  type CountSummary {
+    title: String!
+    count: Int!
+  }
+
 input TaskInput {
   name: String!
   description: String
@@ -90,6 +95,7 @@ input ProjectInput {
 
   extend type Query {
   getMessagesBetween(senderId: ID!, recipientId: ID!): [Message!]!
+   getSummaryCounts: [CountSummary!]!
 }
 
   type Mutation {
