@@ -19,6 +19,10 @@ type Task {
   dueDate: String
 }
 
+type ProjectCompletion {
+  percentage: Int!
+}
+  
 type Message {
   id: ID!
   sender: User!
@@ -96,6 +100,7 @@ input ProjectInput {
   extend type Query {
   getMessagesBetween(senderId: ID!, recipientId: ID!): [Message!]!
    getSummaryCounts: [CountSummary!]!
+   getProjectCompletion(projectId: ID!): ProjectCompletion!
 }
 
   type Mutation {

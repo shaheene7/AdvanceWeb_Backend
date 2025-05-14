@@ -1,5 +1,6 @@
 const Project = require("../../models/project");
 const User = require("../../models/user");
+const Task = require("../../models/task");
 const { AuthenticationError } = require("apollo-server-express");
 
 module.exports = {
@@ -38,6 +39,25 @@ module.exports = {
             }
           : null,
       }));
+    },
+
+    getProjectCompletion: async (_, { projectId }, { user }) => {
+      if (!user) throw new Error("Unauthorized");
+
+      const totalTasks = await Task.countDocuments({
+        assignedToProject: projectId,
+      });
+
+      if (totalTasks === 0) return { percentage: 0 };
+
+      const completedTasks = await Task.countDocuments({
+        assignedToProject: projectId,
+        status: "Completed",
+      });
+
+      const percentage = Math.round((completedTasks / totalTasks) * 100);
+
+      return { percentage };
     },
 
     project: async (_, { id }) => {
