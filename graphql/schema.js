@@ -44,6 +44,7 @@ type Message {
     startDate: String!
     endDate: String
     createdBy: User!
+    tasks: [Task!]!
   }
 
   type AuthPayload {
@@ -60,6 +61,20 @@ type Message {
     title: String!
     count: Int!
   }
+
+  type ProjectWithTasks {
+    id: ID!
+    name: String!
+    description: String
+    status: String!
+    members: [User!]!
+    completionPercentage: Int!
+    category:String!
+    startDate: String!
+    endDate: String
+    createdBy: User!
+    tasks: [Task!]!
+}
 
 input TaskInput {
   name: String!
@@ -94,6 +109,7 @@ input ProjectInput {
 
     # Projects
     projects(status: String, search: String): [Project!]!
+    getProjectWithTasks(id: ID!): ProjectWithTasks
     project(id: ID!): Project
     userProjects(userId: ID!): [Project!]!
   }

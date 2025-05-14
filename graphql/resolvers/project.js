@@ -87,6 +87,31 @@ module.exports = {
         .populate("members")
         .populate("createdBy");
     },
+    getProjectWithTasks: async (_, { id }) => {
+      const project = await Project.findById(id);
+      if (!project) throw new Error("Project not found");
+
+      const tasks = await Task.find({ assignedToProject: id })
+        .populate("assignedTo", "id email")
+        .populate("assignedToProject", "id name");
+
+      return {
+        id: project._id.toString(),
+        name: project.name,
+        description: project.description,
+        startDate: new Date(project.startDate).toISOString().split("T")[0],
+        endDate: new Date(project.endDate).toISOString().split("T")[0],
+        tasks: tasks.map((task) => ({
+          id: task._id.toString(),
+          name: task.name,
+          status: task.status,
+          description: task.description,
+          assignedTo: task.assignedTo,
+          assignedToProject: task.assignedToProject,
+          dueDate: new Date(task.dueDate).toISOString().split("T")[0],
+        })),
+      };
+    },
   },
 
   Mutation: {
