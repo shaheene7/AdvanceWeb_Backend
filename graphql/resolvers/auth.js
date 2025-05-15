@@ -14,11 +14,14 @@ module.exports = {
     },
 
     allStudents: async (_, __, context) => {
-      if (!context.user || context.user.role !== "admin") {
-        throw new AuthenticationError("Not authorized");
-      }
-
       const students = await User.find({ role: "student" });
+      return students.map((s) => ({
+        ...s.toObject(),
+        id: s._id.toString(),
+      }));
+    },
+    allAdmins: async (_, __, context) => {
+      const students = await User.find({ role: "admin" });
       return students.map((s) => ({
         ...s.toObject(),
         id: s._id.toString(),

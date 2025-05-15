@@ -100,6 +100,7 @@ input ProjectInput {
     # Auth
     me: User
     allStudents: [User!]!
+    allAdmins:[User!]!
 
     # Tasks
     tasks: [Task!]!
