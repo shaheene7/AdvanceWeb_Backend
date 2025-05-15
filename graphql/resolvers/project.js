@@ -58,32 +58,8 @@ module.exports = {
       return results;
     },
 
-    getProjectCompletion: async (_, { projectId }, { user }) => {
-      if (!user) throw new Error("Unauthorized");
-
-      const totalTasks = await Task.countDocuments({
-        assignedToProject: projectId,
-      });
-
-      if (totalTasks === 0) return { percentage: 0 };
-
-      const completedTasks = await Task.countDocuments({
-        assignedToProject: projectId,
-        status: "Completed",
-      });
-
-      const percentage = Math.round((completedTasks / totalTasks) * 100);
-
-      return { percentage };
-    },
-
     project: async (_, { id }) => {
       return await Project.findById(id)
-        .populate("members")
-        .populate("createdBy");
-    },
-    userProjects: async (_, { userId }) => {
-      return await Project.find({ members: userId })
         .populate("members")
         .populate("createdBy");
     },
@@ -142,53 +118,6 @@ module.exports = {
         })),
         category: populatedProject.category,
       };
-    },
-
-    deleteProject: async (_, { id }, context) => {
-      if (!context.user || context.user.role !== "admin") {
-        throw new AuthenticationError("Not authorized");
-      }
-
-      const project = await Project.findByIdAndDelete(id);
-      return !!project;
-    },
-
-    addProjectMember: async (_, { projectId, userId }, context) => {
-      if (!context.user || context.user.role !== "admin") {
-        throw new AuthenticationError("Not authorized");
-      }
-
-      const project = await Project.findById(projectId);
-      const user = await User.findById(userId);
-
-      if (!project || !user) {
-        throw new Error("Project or user not found");
-      }
-
-      if (!project.members.includes(userId)) {
-        project.members.push(userId);
-        await project.save();
-      }
-
-      return project;
-    },
-
-    removeProjectMember: async (_, { projectId, userId }, context) => {
-      if (!context.user || context.user.role !== "admin") {
-        throw new AuthenticationError("Not authorized");
-      }
-
-      const project = await Project.findById(projectId);
-      if (!project) {
-        throw new Error("Project not found");
-      }
-
-      project.members = project.members.filter(
-        (member) => member.toString() !== userId
-      );
-      await project.save();
-
-      return project;
     },
   },
 };

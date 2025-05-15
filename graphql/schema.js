@@ -103,15 +103,12 @@ input ProjectInput {
 
     # Tasks
     tasks: [Task!]!
-    task(id: ID!): Task
-    userTasks(userId: ID!): [Task!]!
-    tasksByProject(projectId: ID!): [Task]
+   
 
     # Projects
     projects(status: String, search: String): [Project!]!
     getProjectWithTasks(id: ID!): ProjectWithTasks
     project(id: ID!): Project
-    userProjects(userId: ID!): [Project!]!
   }
 
   extend type Query {
@@ -128,13 +125,9 @@ input ProjectInput {
 
     # Tasks
     addTask(taskInput: TaskInput!): Task!
-    deleteTask(id: ID!): Boolean!
 
     # Projects
     createProject(projectInput: ProjectInput!): Project!
-    deleteProject(id: ID!): Boolean!
-    addProjectMember(projectId: ID!, userId: ID!): Project!
-    removeProjectMember(projectId: ID!, userId: ID!): Project!
   }
   extend type Mutation {
   sendMessage(senderId: ID!, recipientId: ID!, content: String!): Message!

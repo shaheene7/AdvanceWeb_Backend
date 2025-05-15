@@ -6,11 +6,9 @@ module.exports = {
     getMessagesBetween: async (_, { senderId, recipientId }, { user }) => {
       if (!user) throw new Error("Unauthorized");
 
-      // Validate users exist
       const sender = await User.findById(senderId);
       const recipient = await User.findById(recipientId);
 
-      // Only allow admin ↔ student communication
       if (
         !sender ||
         !recipient ||
