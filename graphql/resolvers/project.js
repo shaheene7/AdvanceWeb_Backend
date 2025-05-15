@@ -88,7 +88,7 @@ module.exports = {
         .populate("createdBy");
     },
     getProjectWithTasks: async (_, { id }) => {
-      const project = await Project.findById(id);
+      const project = await Project.findById(id).populate("members");
       if (!project) throw new Error("Project not found");
 
       const tasks = await Task.find({ assignedToProject: id })
@@ -98,6 +98,8 @@ module.exports = {
       return {
         id: project._id.toString(),
         name: project.name,
+        category: project.category,
+        members: project.members,
         description: project.description,
         startDate: new Date(project.startDate).toISOString().split("T")[0],
         endDate: new Date(project.endDate).toISOString().split("T")[0],
